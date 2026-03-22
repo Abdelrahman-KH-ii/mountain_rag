@@ -1,50 +1,90 @@
-# 🏔️ Mountain RAG Assistant v2
+# Mountain RAG Assistant
 
-AI chatbot للإجابة على أسئلة عن أشهر جبال العالم — Production-Ready RAG.
+A production-ready AI chatbot that answers questions about the world's most famous mountains using Retrieval-Augmented Generation (RAG).
 
-## ✨ المميزات
+Live Demo: [mountainrag.streamlit.app](https://mountainrag.streamlit.app)
 
-| Feature | الوصف |
+---
+
+## Features
+
+| Feature | Description |
 |---|---|
-| 🔀 Query Expansion | بيولد 3 صيغ مختلفة للسؤال لتحسين البحث |
-| ⚡ Semantic Cache | بيحفظ الإجابات ويرجعها فورًا لو السؤال متشابه |
-| 💬 Multi-session History | محادثات متعددة في الـ sidebar |
-| 📊 Ragas Evaluation | بيقيّم كل إجابة (Faithfulness / Relevancy / Precision) |
-| 🔍 Hybrid Search | FAISS vector + BM25 keyword |
-| 🎯 Cross-Encoder Reranker | BGE-Reranker لأدق 5 نتائج |
+| Query Expansion | Generates 3 alternative phrasings of each question to improve search recall |
+| Semantic Cache | Caches answers and returns them instantly for similar questions |
+| Multi-session History | Supports multiple conversations in the sidebar |
+| Ragas Evaluation | Evaluates each answer on Faithfulness, Relevancy, and Context Precision |
+| Hybrid Search | Combines FAISS vector search with BM25 keyword search |
+| Cross-Encoder Reranker | Uses BGE-Reranker to select the top 5 most relevant chunks |
 
-## 🚀 تشغيل محلي
+---
+
+## Tech Stack
+
+| Component | Technology |
+|---|---|
+| UI | Streamlit |
+| Vector Search | FAISS (HNSW) |
+| Keyword Search | BM25 (rank-bm25) |
+| Embeddings | paraphrase-multilingual-MiniLM-L12-v2 |
+| Reranker | BAAI/bge-reranker-base |
+| LLM | Groq LLaMA-3.1-8B-Instant |
+| Evaluation | Ragas |
+
+---
+
+## Run Locally
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/mountain-rag.git
-cd mountain-rag
+git clone https://github.com/Abdelrahman-KH-ii/mountain_rag.git
+cd mountain_rag
 python -m venv venv
-venv\Scripts\activate      # Windows
-# source venv/bin/activate # Mac/Linux
+venv\Scripts\activate        # Windows
+# source venv/bin/activate   # Mac/Linux
 pip install -r requirements.txt
 streamlit run app.py
 ```
 
-## ☁️ Deploy على Streamlit Cloud
-
-1. ارفع على GitHub
-2. روح [share.streamlit.io](https://share.streamlit.io) → New app
-3. اختار الريبو → Main file: `app.py`
-4. في **Secrets**:
+Create a `.env` file in the project root:
 ```
-GROQ_API_KEY = "your_key_here"
+GROQ_API_KEY=your_groq_api_key_here
 ```
-5. Deploy ✅
 
-## 🗂️ هيكل المشروع
+---
+
+## Deploy on Streamlit Cloud
+
+1. Fork this repository
+2. Go to [share.streamlit.io](https://share.streamlit.io) and click New app
+3. Select the repository and set Main file path to `app.py`
+4. Under Advanced settings, add the following secret:
+```
+GROQ_API_KEY = "your_groq_api_key_here"
+```
+5. Click Deploy
+
+---
+
+## Project Structure
 
 ```
-mountain-rag/
-├── app.py           ← Streamlit UI
-├── rag_engine.py    ← RAG + Cache + Query Expansion
+mountain_rag/
+├── app.py            - Streamlit UI
+├── rag_engine.py     - RAG pipeline (search, rerank, cache, query expansion)
 ├── requirements.txt
-├── .env
-└── rag_index/
-    ├── faiss.index
-    └── chunks.pkl
+├── rag_index/
+│   ├── faiss.index   - FAISS vector index
+│   └── chunks.pkl    - Document chunks with metadata
+└── README.md
 ```
+
+---
+
+## How It Works
+
+1. The user asks a question
+2. The system generates 3 alternative versions of the question (Query Expansion)
+3. All 4 queries run through Hybrid Search (FAISS + BM25)
+4. The top 20 results are reranked by a Cross-Encoder model
+5. The top 5 chunks are passed as context to Groq LLaMA-3.1-8B
+6. The answer is returned and cached for future similar questions
